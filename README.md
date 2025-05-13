@@ -46,6 +46,10 @@ If you want to analyze 2 cameras
 ```
 python3 main.py --use_cameras 2 --nms_iou 0.1 --conf 0.5 --batch_size 64 --create_plots
 ```
+Example I use
+```
+python main.py --use_cameras 1 --nms_iou 0.1 --conf 0.5 --batch_size 64 --create_plots
+```
 To finish camera detections gracefully, press and hold the esc key to stop the analysis
 
 
