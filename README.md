@@ -1,6 +1,6 @@
 # HeinSight3.0
 
-
+This is a forked repository with some modifications for in-house use of high throughput vial screening. The original authors can be found on the fork's parent.
 
 code and models: [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.11053915.svg)](https://doi.org/10.5281/zenodo.11053915)
 
