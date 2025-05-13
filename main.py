@@ -60,7 +60,7 @@ def initialize_vial_detector():
     return model
 
 
-def initialize_yolo(conf=0.5, nms_iou=0.2):
+def initialize_yolo(conf=config.min_confidence_threshold, nms_iou=0.2):
     liquid_model = torch.hub.load('./yolov5', 'custom', path='./liquid/best.pt', source='local')
     # liquid_model.to('cuda')
     LOG.info(f"IOU threshold for NMS set to {nms_iou}")
@@ -600,4 +600,6 @@ if __name__ == '__main__':
     """
     main func
     """
+    os.makedirs('output', exist_ok=True)
+    os.makedirs('output/insseg', exist_ok=True)
     segment_video()
