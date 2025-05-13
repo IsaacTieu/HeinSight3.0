@@ -1,3 +1,3 @@
 
 class Config():
-    pass
+    max_y = None

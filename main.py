@@ -21,6 +21,9 @@ mpl.rcParams['path.simplify'] = True
 mpl.rcParams['path.simplify_threshold'] = 1.0
 mplstyle.use('fast')
 
+from config import Config
+config = Config()
+
 classes = ["Homogeneous Reaction", "Heterogeneous Reaction", "Residue", "Empty", "Solid", "StirBar"]
 colors = [(189/255.0, 16/255.0, 224/255.0), (245/255.0, 166/255.0, 35/255.0), (110/255.0, 226/255.0, 105/255.0), (248/255.0, 231/255.0, 28/255.0), (0/255.0, 60/255.0, 255/255.0), (60/255.0, 60/255.0, 60/255.0)]
 
@@ -115,6 +118,12 @@ def eval_yolo_batch(ims, boxes, liquid_predictor, scale=1.0, batch_size=32):
             bx_volumes = []
             bx_colors = []
             for boxp in results.xyxyn[im_idx * len(boxes) + box_idx].to('cpu'):
+                
+                # Filters out bounding boxes above a max y value.
+                if config.max_y and boxp[3] < config.max_y:
+                    continue
+
+
                 list_box = boxp.tolist()
                 classp = int(list_box[5])
                 scorep = list_box[4]
