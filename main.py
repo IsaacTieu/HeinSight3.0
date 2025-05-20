@@ -33,7 +33,7 @@ solid_colors = [(248/255.0, 231/255.0, 28/255.0), (0/255.0, 60/255.0, 255/255.0)
 liquid_classes = ["Homo", "Hetero", "Empty", "Cap"]
 liquid_colors = [(189, 16, 224), (245, 166, 35), (120, 120, 120), (60, 60, 60)]
 LOG = init_logger.get_logger('instance_seg.log')
-VIAL_SIZE = 1.8  # mL
+VIAL_SIZE = config.vial_size
 MAX_DETECTIONS_PER_VIAL=5
 
 def init_args():
