@@ -111,6 +111,8 @@ def eval_yolo_batch(ims, boxes, liquid_predictor, scale=1.0, batch_size=32):
     # return ims, ims, turbidity, colors, volumes, segs
     # start = time.time()
     for im_idx, im in enumerate(ims):
+        height, _ = im.shape[:2]
+
         for box_idx, box in enumerate(boxes):
             x, y, w, h, = box
             x, y, w, h = int(x * scale), int(y * scale), int(w * scale), int(h * scale)
@@ -118,13 +120,13 @@ def eval_yolo_batch(ims, boxes, liquid_predictor, scale=1.0, batch_size=32):
             bx_volumes = []
             bx_colors = []
             for boxp in results.xyxyn[im_idx * len(boxes) + box_idx].to('cpu'):
-                
+                list_box = boxp.tolist()
+
                 # Filters out bounding boxes above a max y value.
-                if config.max_y and boxp[3] < config.max_y:
+                y_top_pixel = int(list_box[1] * height)
+                if y_top_pixel <= config.max_y:
                     continue
 
-
-                list_box = boxp.tolist()
                 classp = int(list_box[5])
                 scorep = list_box[4]
                 # if scorep < 0.25:
