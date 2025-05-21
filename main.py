@@ -36,6 +36,9 @@ LOG = init_logger.get_logger('instance_seg.log')
 VIAL_SIZE = config.vial_size
 MAX_DETECTIONS_PER_VIAL=5
 
+# used to assign a phase bounding box to a specific value
+volume_tracking_index = 0
+
 def init_args():
     """
 
@@ -111,6 +114,7 @@ def eval_yolo_batch(ims, boxes, liquid_predictor, scale=1.0, batch_size=32):
     # return ims, ims, turbidity, colors, volumes, segs
     # start = time.time()
     for im_idx, im in enumerate(ims):
+        global volume_tracking_index
         height, _ = im.shape[:2]
 
         for box_idx, box in enumerate(boxes):
@@ -119,6 +123,8 @@ def eval_yolo_batch(ims, boxes, liquid_predictor, scale=1.0, batch_size=32):
             lowest_h = 2
             bx_volumes = []
             bx_colors = []
+            from collections import defaultdict
+            phase_map = defaultdict(float)
             for boxp in results.xyxyn[im_idx * len(boxes) + box_idx].to('cpu'):
                 list_box = boxp.tolist()
 
@@ -126,6 +132,22 @@ def eval_yolo_batch(ims, boxes, liquid_predictor, scale=1.0, batch_size=32):
                 y_top_pixel = int(list_box[1] * height)
                 if y_top_pixel <= config.max_y:
                     continue
+                    
+                if phase_map.keys():
+                    # middle of the bounding box, using this as the key
+                    # remember that this is a normalized float
+                    middle = ((list_box[2] - list_box[1]) / 2) + list_box[1]
+                    for key in phase_map.keys():
+                        if abs(key - middle) <= 0.05:
+                            phase_map[middle] = phase_map[key]
+                            del phase_map[key]
+                        else:
+                            phase_map[middle] = volume_tracking_index
+                            volume_tracking_index += 1
+                else:
+                    phase_map[middle] = volume_tracking_index
+                    volume_tracking_index += 1
+
 
                 classp = int(list_box[5])
                 scorep = list_box[4]
@@ -147,8 +169,8 @@ def eval_yolo_batch(ims, boxes, liquid_predictor, scale=1.0, batch_size=32):
                 im = cv2.putText(im, f'{liquid_classes[classp]}, {scorep:.2f}', tuple(boxp[:2].numpy().astype(int)),
                                  cv2.FONT_HERSHEY_SIMPLEX, 0.75, liquid_colors[classp], 2)
             bx_volumes = sorted(bx_volumes, key=lambda x: x[1])
-            bx_volumes = flip_volumes(bx_volumes)
-            bx_colors = sorted(bx_colors, key=lambda x: x[1])
+            #bx_volumes = flip_volumes(bx_volumes)
+            #bx_colors = sorted(bx_colors, key=lambda x: x[1])
             bx_colors = flip_volumes(bx_colors)
             for idx, vol in enumerate(bx_volumes):
                 if idx==MAX_DETECTIONS_PER_VIAL:
@@ -567,9 +589,9 @@ def segment_video():
     # LOG.info(turbidities.shape)
     # LOG.info(colors.shape)
     # LOG.info(volumes.shape)
-    save_data(turbidities, colors, volumes, fps)
+    save_data(turbidities, colors, final_volumes, fps)
     if args.create_plots:
-        create_plots(turbidities, volumes, segs)
+        create_plots(turbidities, final_volumes, segs)
     LOG.info(f'Videos saved at ./output/insseg/')
 
     return

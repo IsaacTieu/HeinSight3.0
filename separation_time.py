@@ -53,11 +53,14 @@ def find_separation_time(npy_filepath, start_time, plot=False):
 
     # finding the index of the last 5 minutes
     last_5_index = turb.shape[0] - 5 * 1800
+    #print(f'last index: {last_5_index}')
     last_5_min = diffs_no_average[last_5_index:]
     threshold = min(last_5_min) + max(last_5_min) * 2
+    #print(f'Threshold: {threshold}')
 
     # find first above threshold value
     diffs_no_average = np.array(diffs_no_average)
+    #print(diffs_no_average)
     plateau = np.where(diffs_no_average > threshold)[0]
     plateau_time = (plateau[-1] + 1) / 1800
 
