@@ -24,6 +24,13 @@ mplstyle.use('fast')
 from config import Config
 config = Config()
 
+def mk_dir(path):
+    """
+    Creates a new directory on 'path' if it does not already exist.
+    """
+    if not os.path.exists(path):
+        os.makedirs(path)
+
 classes = ["Homogeneous Reaction", "Heterogeneous Reaction", "Residue", "Empty", "Solid", "StirBar"]
 colors = [(189/255.0, 16/255.0, 224/255.0), (245/255.0, 166/255.0, 35/255.0), (110/255.0, 226/255.0, 105/255.0), (248/255.0, 231/255.0, 28/255.0), (0/255.0, 60/255.0, 255/255.0), (60/255.0, 60/255.0, 60/255.0)]
 
@@ -624,6 +631,8 @@ if __name__ == '__main__':
     """
     main func
     """
-    os.makedirs('output', exist_ok=True)
-    os.makedirs('output/insseg', exist_ok=True)
+    mk_dir('output')
+    mk_dir('output/insseg')
+    mk_dir('output/raw_data')
+
     segment_video()
